@@ -1,8 +1,7 @@
 # EntityComponents
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/entity_components`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is a simple system for having entities with data components in Rails. Store component data in a single table/collection
+and define components in a separate directory.
 
 ## Installation
 
@@ -16,13 +15,31 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install entity_components
-
 ## Usage
 
-TODO: Write usage instructions here
+Make a model that has `components` text field and a `values` text field. Include `EntityComponents` into it like so:
+
+```ruby
+class Entity < ApplicationRecord
+  include EntityComponents
+end
+```
+
+Then define components in `app/components` with a constructor that takes a hash of properties like so:
+
+```ruby
+class Position < OpenStruct
+end
+```
+
+Now you can create a new entity like so:
+
+```ruby
+2.3.0 :001 > e = Entity.new(id: 'a', components: ['position'], values: { position: { x: 0, y: 5 } })
+ => #<Entity id: nil, components: ["position"], values: {:position=>{:x=>0, :y=>5}}, created_at: nil, updated_at: nil>
+2.3.0 :002 > e.position.y
+ => 5
+```
 
 ## Development
 

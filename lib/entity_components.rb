@@ -11,6 +11,7 @@ module EntityComponents
     serialize :values
 
     after_initialize :initialize_components
+    before_validation :serialize_components
   end
 
   def initialize_components
@@ -23,6 +24,13 @@ module EntityComponents
       define_singleton_method name do
         instance_variable_get(variable_name) || instance_variable_set(variable_name, klass.new(values[name]))
       end
+    end
+  end
+
+  def serialize_components
+    components.each do |c|
+      name = c.to_sym
+      values[name] = send(name).to_h
     end
   end
 end

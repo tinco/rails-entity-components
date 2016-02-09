@@ -3,16 +3,8 @@ require 'entity_components/railtie' if defined? Rails
 
 require 'active_support/concern'
 
-module EntityComponents
+module EntityComponents::Hooks
   extend ActiveSupport::Concern
-
-  included do
-    serialize :components, Array
-    serialize :values
-
-    after_initialize :initialize_components
-    before_validation :serialize_components
-  end
 
   def initialize_components
     components.each do |c|
@@ -34,3 +26,42 @@ module EntityComponents
     end
   end
 end
+
+module EntityComponents::ActiveRecord
+  extend ActiveSupport::Concern
+
+  include EntityComponents::Hooks
+
+  included do
+    serialize :components, Array
+    serialize :values
+
+    after_initialize :initialize_components
+    before_validation :serialize_components
+  end
+end
+
+module EntityComponents::NoBrainer
+  extend ActiveSupport::Concern
+
+  include EntityComponents::Hooks
+
+  included do
+    after_initialize :initialize_components
+    before_validation :serialize_components
+
+    field :values, type: Hash
+    field :components, type: Array
+  end
+
+  def _update_only_changed_attrs(*args)
+    serialize_components
+    super
+  end
+
+  def _create(*args)
+    serialize_components
+    super
+  end
+end
+
